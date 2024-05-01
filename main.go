@@ -176,6 +176,47 @@ func processLink(linkStr string) string {
 	return originImgUrl.String()
 }
 
+func readJSON(filename string) (gjson.Result, error) {
+	jsonFile, err := os.Open(filename)
+	if err != nil {
+		return gjson.Result{}, err
+	}
+	defer jsonFile.Close()
+
+	byteValue, _ := io.ReadAll(jsonFile)
+
+	return gjson.ParseBytes(byteValue), nil
+}
+
+func writeJSON(filename string, data []string) error {
+
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		return err
+	}
+
+	err = os.WriteFile(filename, jsonData, 0644)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func readJSONFileToDonwload(filename string) error {
+	resList, err := readJSON(filename)
+	if err != nil {
+		fmt.Println("Error: ", err)
+		return err
+	}
+
+	resList.ForEach(func(key, value gjson.Result) bool {
+		searchByIllustId(value.Str)
+		return true
+	})
+	return nil
+}
+
 // 根据插画ID搜索并下载
 func searchByIllustId(id string) error {
 
@@ -184,7 +225,7 @@ func searchByIllustId(id string) error {
 	reqUrl := &url.URL{
 		Scheme: "https",
 		Host:   "www.pixiv.net",
-		Path:     "/ajax/illust/" + id + "/pages",
+		Path:   "/ajax/illust/" + id + "/pages",
 	}
 
 	saveImgPath := "./illusts_" + id + "/"
@@ -244,7 +285,7 @@ func searchByUid(uid string) error {
 	uidInfoUrl := &url.URL{
 		Scheme: "https",
 		Host:   "www.pixiv.net",
-		Path: "/ajax/user/" + uid + "/profile/all",
+		Path:   "/ajax/user/" + uid + "/profile/all",
 	}
 
 	c := createCollector()
@@ -272,6 +313,7 @@ func searchByUid(uid string) error {
 
 		fmt.Printf("Total images: %d, downloaded: %d, failed: %d\n", totalImgs, downloadedImgs, len(errImg))
 		fmt.Println("Failed images: ", errImg)
+		writeJSON("failed.json", errImg)
 	}
 
 	c.OnError(handleGetUserInfoError)
@@ -287,7 +329,8 @@ func searchByUid(uid string) error {
 func menu() {
 	fmt.Println("1.Dowanload image by illust's id")
 	fmt.Println("2.Dowanload image by uid")
-	fmt.Println("3.Doh test")
+	fmt.Println("3.Dowanload image by json file")
+	fmt.Println("4.Doh test")
 	fmt.Println("input your option")
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
@@ -301,6 +344,10 @@ func menu() {
 		scanner.Scan()
 		searchByUid(scanner.Text())
 	case "3":
+		fmt.Println("Please enter the file of the image you want to download: ")
+		scanner.Scan()
+		readJSONFileToDonwload(scanner.Text())
+	case "4":
 		fmt.Println("Doh test domain: ")
 		scanner.Scan()
 		getDnsResponse(scanner.Text())
