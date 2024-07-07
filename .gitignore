@@ -1,0 +1,26 @@
+# Compiled binary files
+/bin/
+
+# Logs and databases
+*.log
+*.sql
+*.sqlite
+
+# Dependency directories (remove if using vendoring)
+/vendor/
+**/vendor/
+
+# Optional: ignore the Go module files if they're not meant to be shared
+# go.mod
+# go.sum
+
+# Configuration files
+/config.json
+/secrets.json
+
+# IDE and editor folders
+/.idea/
+*.swp
+*.swo
+.vscode/
+.DS_Store
