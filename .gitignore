@@ -15,7 +15,7 @@
 # go.sum
 
 # Configuration files
-/config.json
+# /config.json
 /secrets.json
 
 # IDE and editor folders

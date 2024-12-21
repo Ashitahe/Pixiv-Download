@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"pixivDownload/pkg/config"
 	"pixivDownload/pkg/dns"
 	"pixivDownload/pkg/jsonutil"
 	"pixivDownload/pkg/search"
@@ -20,6 +21,8 @@ func menu() {
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
 	option := scanner.Text()
+
+	config.LoadConfig("")
 
 	switch option {
 	case "1":

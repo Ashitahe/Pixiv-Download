@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"bufio"
 	"bytes"
 	"fmt"
 	"io"
@@ -22,8 +23,25 @@ func SaveFile(content []byte, directory, filename string) error {
 	}
 	defer file.Close()
 
-	if _, err = io.Copy(file, bytes.NewReader(content)); err != nil {
-		fmt.Printf("Failed to write to file %s: %v\n", fullPath, err)
+	writer := bufio.NewWriter(file)
+	reader := bytes.NewReader(content)
+	buffer := make([]byte, 32*1024)
+
+	for {
+		n, err := reader.Read(buffer)
+		if err != nil && err != io.EOF {
+			return err
+		}
+		if n == 0 {
+			break
+		}
+
+		if _, err := writer.Write(buffer[:n]); err != nil {
+			return err
+		}
+	}
+
+	if err := writer.Flush(); err != nil {
 		return err
 	}
 
